@@ -1,2 +1,2 @@
 # ntc-gwsc
-ntc-gwsc is code example websocket client by library gorilla
+ntc-gwsc is golang code example websocket client using library gorilla
