@@ -160,11 +160,15 @@ func main() {
 		select {
 		case t := <-ticker.C:
 			//err := uws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
-			// data := `{"a":[],"b":[["379.11400000", "0.03203000"]],"s":"ETH_BTC","t": 1533628625530,"e":"depthUpdate"}`
+
 			msec := t.UnixNano() / 1000000
+
+			///// 1. DepthPrice Data.
+			// data := `{"a":[],"b":[["379.11400000", "0.03203000"]],"s":"ETH_BTC","t": 1533628625530,"e":"depthUpdate"}`
 			data := `{"a":[],"b":[["379.11400000", "0.03203000"]],"s":"ETH_BTC","t":"` + fmt.Sprint(msec) + `","e":"depthUpdate"}`
 			// data := `{"a":[],"b":[["379.11400000", "0.03203000"]],"s":"","t":"` + fmt.Sprint(msec) + `","e":"depthUpdate"}`
 			// data := `{"a":[],"b":[["379.11400000", "0.03203000"]],"t":"` + fmt.Sprint(msec) + `","e":"depthUpdate"}`
+
 			err := uws.conn.WriteMessage(websocket.TextMessage, []byte(data))
 			if err != nil {
 				log.Println("write:", err)
