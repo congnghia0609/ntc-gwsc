@@ -1,18 +1,14 @@
-package main
+package wsc
 
-// import (
-// 	"fmt"
-// 	"log"
-// 	"net/url"
-// 	"os"
-// 	"os/signal"
-// 	"sync"
-// 	"time"
+import (
+	"fmt"
+	"log"
+	"time"
 
-// 	"github.com/gorilla/websocket"
-// )
+	"github.com/gorilla/websocket"
+)
 
-// type uwsclient struct {
+// type UWSClient struct {
 // 	interrupt chan os.Signal
 // 	done      chan struct{}
 // 	url       url.URL
@@ -21,14 +17,14 @@ package main
 
 // // var addr = "localhost:8080"
 // var addr = "localhost:15501"
-// var instance *uwsclient
+// var instance *UWSClient
 // var once sync.Once
 
 // // GetInstanceUWS Singleton UWSClient
-// func GetInstanceUWS() *uwsclient {
-// 	fmt.Println("=================== uwsclient.GetInstanceUWS ===================")
+// func GetInstanceUWS() *UWSClient {
+// 	fmt.Println("=================== UWSClient.GetInstanceUWS ===================")
 // 	once.Do(func() {
-// 		var uws uwsclient
+// 		var uws UWSClient
 // 		var err error
 // 		uws, err = InitUWS()
 // 		if err != nil {
@@ -41,9 +37,9 @@ package main
 // }
 
 // // NewInstanceUWS new object UWSClient
-// func NewInstanceUWS() *uwsclient {
-// 	fmt.Println("=================== uwsclient.NewInstanceUWS ===================")
-// 	var uws uwsclient
+// func NewInstanceUWS() *UWSClient {
+// 	fmt.Println("=================== UWSClient.NewInstanceUWS ===================")
+// 	var uws UWSClient
 // 	var err error
 // 	uws, err = InitUWS()
 // 	if err != nil {
@@ -55,8 +51,8 @@ package main
 // }
 
 // // InitUWS UWSClient
-// func InitUWS() (uwsclient, error) {
-// 	var uws uwsclient
+// func InitUWS() (UWSClient, error) {
+// 	var uws UWSClient
 // 	var err error
 // 	uws.interrupt = make(chan os.Signal, 1)
 // 	signal.Notify(uws.interrupt, os.Interrupt)
@@ -74,8 +70,8 @@ package main
 // }
 
 // // InitUWS2 UWSClient
-// func InitUWS2(host string, path string) (uwsclient, error) {
-// 	var uws uwsclient
+// func InitUWS2(host string, path string) (UWSClient, error) {
+// 	var uws UWSClient
 // 	var err error
 // 	uws.interrupt = make(chan os.Signal, 1)
 // 	signal.Notify(uws.interrupt, os.Interrupt)
@@ -93,9 +89,9 @@ package main
 // }
 
 // // NewInstanceUWS2 new object UWSClient
-// func NewInstanceUWS2(host string, path string) *uwsclient {
-// 	fmt.Println("=================== uwsclient.NewInstanceUWS2 ===================")
-// 	var uws uwsclient
+// func NewInstanceUWS2(host string, path string) *UWSClient {
+// 	fmt.Println("=================== UWSClient.NewInstanceUWS2 ===================")
+// 	var uws UWSClient
 // 	var err error
 // 	uws, err = InitUWS2(host, path)
 // 	if err != nil {
@@ -106,19 +102,19 @@ package main
 // 	return instance
 // }
 
-// func (uws uwsclient) Close() {
+// func (uws UWSClient) Close() {
 // 	if uws.conn != nil {
 // 		uws.conn.Close()
 // 	}
 // }
 
 // // Reconnect is method auto-reconnect to websocket server.
-// func Reconnect(host string, path string) *uwsclient {
+// func Reconnect(host string, path string) *UWSClient {
 // 	// create ticket time for every 3 seconds
 // 	ticker := time.NewTicker(time.Duration(3) * time.Second)
 // 	var count = 1
 // 	for _ = range ticker.C {
-// 		var uws *uwsclient
+// 		var uws *UWSClient
 // 		uws = NewInstanceUWS2(host, path)
 
 // 		// Create new websocket
@@ -132,53 +128,60 @@ package main
 // 	return nil
 // }
 
-// func main() {
-// 	var uws *uwsclient
-// 	// var err error
-// 	uws = GetInstanceUWS()
-// 	defer uws.Close()
+func StartDPWSClient() {
+	var uws *UWSClient
+	// var err error
+	uws, _ = NewInstanceWSC(NameDPWSC, "ws", "localhost:15501", "/ws/v1/dp/ETH_BTC")
+	defer uws.Close()
 
-// 	// Thread receive message.
-// 	go func() {
-// 		defer uws.Close()
-// 		defer close(uws.done)
-// 		for {
-// 			_, message, err := uws.conn.ReadMessage()
-// 			if err != nil {
-// 				log.Println("read:", err)
-// 				return
-// 			}
-// 			log.Printf("recv: %s", message)
-// 		}
-// 	}()
+	// Thread receive message.
+	go func() {
+		defer uws.Close()
+		defer close(uws.done)
+		for {
+			_, message, err := uws.conn.ReadMessage()
+			if err != nil {
+				log.Println("read:", err)
+				return
+			}
+			log.Printf("recv: %s", message)
+		}
+	}()
 
-// 	// Thread send message.
-// 	ticker := time.NewTicker(time.Second)
-// 	defer ticker.Stop()
+	// Thread send message.
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 
-// 	for {
-// 		select {
-// 		case t := <-ticker.C:
-// 			err := uws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
-// 			if err != nil {
-// 				log.Println("write:", err)
-// 				return
-// 			}
-// 		case <-uws.interrupt:
-// 			log.Println("interrupt")
-// 			// To cleanly close a connection, a client should send a close
-// 			// frame and wait for the server to close the connection.
-// 			err := uws.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-// 			if err != nil {
-// 				log.Println("write close:", err)
-// 				return
-// 			}
-// 			select {
-// 			case <-uws.done:
-// 			case <-time.After(time.Second):
-// 			}
-// 			uws.Close()
-// 			return
-// 		}
-// 	}
-// }
+	for {
+		select {
+		case t := <-ticker.C:
+			//err := uws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
+
+			msec := t.UnixNano() / 1000000
+
+			///// 1. DepthPrice Data.
+			data := `{"a":[],"b":[["379.11400000", "0.03203000"]],"s":"ETH_BTC","t":"` + fmt.Sprint(msec) + `","e":"depthUpdate"}`
+
+			err := uws.conn.WriteMessage(websocket.TextMessage, []byte(data))
+			if err != nil {
+				log.Println("write:", err)
+				return
+			}
+		case <-uws.interrupt:
+			log.Println("interrupt")
+			// To cleanly close a connection, a client should send a close
+			// frame and wait for the server to close the connection.
+			err := uws.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			if err != nil {
+				log.Println("write close:", err)
+				return
+			}
+			select {
+			case <-uws.done:
+			case <-time.After(time.Second):
+			}
+			uws.Close()
+			return
+		}
+	}
+}
