@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (wsc *UWSClient) recvCS() {
+func (wsc *UWSClient) recvRS() {
 	util.TCF{
 		Try: func() {
 			defer wsc.Close()
@@ -21,11 +21,12 @@ func (wsc *UWSClient) recvCS() {
 					wsc.Reconnect()
 					// return
 				}
+				//log.Printf("url: %s", wsc.url.String())
 				log.Printf("recv: %s", message)
 			}
 		},
 		Catch: func(e util.Exception) {
-			log.Printf("wsc.recvCS Caught %v\n", e)
+			log.Printf("wsc.recvRS Caught %v\n", e)
 		},
 		Finally: func() {
 			//log.Println("Finally...")
@@ -33,12 +34,11 @@ func (wsc *UWSClient) recvCS() {
 	}.Do()
 }
 
-func (wsc *UWSClient) sendCS() {
+func (wsc *UWSClient) sendRS() {
 	util.TCF{
 		Try: func() {
 			ticker := time.NewTicker(time.Second)
 			defer ticker.Stop()
-
 			for {
 				select {
 				case t := <-ticker.C:
@@ -46,9 +46,8 @@ func (wsc *UWSClient) sendCS() {
 
 					msec := t.UnixNano() / 1000000
 
-					///// 1. Candlesticks Data.
-					data := `{"tt":"1h","s":"ETH_BTC","t":` + fmt.Sprint(msec) + `,"e":"kline","k":{"c":"0.00028022","t":1533715200000,"v":"905062.00000000","h":"0.00028252","l":"0.00027787","o":"0.00027919"}}`
-
+					///// 1. Ticker24h Data.
+					data := `{"t":` + fmt.Sprint(msec) + `,"list_symbol":"BTC_USDT;ETH_USDT;KNOW_USDT;GTO_USDT"}`
 					err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
 					if err != nil {
 						log.Println("write:", err)
@@ -73,7 +72,7 @@ func (wsc *UWSClient) sendCS() {
 			}
 		},
 		Catch: func(e util.Exception) {
-			log.Printf("wsc.sendCS Caught %v\n", e)
+			log.Printf("wsc.sendRS Caught %v\n", e)
 		},
 		Finally: func() {
 			//log.Println("Finally...")
@@ -81,19 +80,17 @@ func (wsc *UWSClient) sendCS() {
 	}.Do()
 }
 
-func NewCSWSClient() *UWSClient {
-	var cswsc *UWSClient
+func NewRSWSClient() *UWSClient {
+	var rswsc *UWSClient
 	// var err error
-	cswsc, _ = NewInstanceWSC(NameCSWSC, "ws", "localhost:15601", "/ws/v1/cs/ETH_BTC@1m")
-	//wss://engine2.kryptono.exchange/ws/v1/cs/ETH_BTC@1m
-	// cswsc, _ = NewInstanceWSC(NameCSWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/cs/ETH_BTC@1m")
+	rswsc, _ = NewInstanceWSC(NameRSWSC, "ws", "localhost:15801", "/ws/v1/tk")
 	//defer uws.Close()
-	return cswsc
+	return rswsc
 }
 
-func (cswsc *UWSClient) StartCSWSClient() {
+func (tkwsc *UWSClient) StartRSWSClient() {
 	// Thread receive message.
-	go cswsc.recvCS()
+	go tkwsc.recvRS()
 	// Thread send message.
-	// go cswsc.sendCS()
+	go tkwsc.sendRS()
 }

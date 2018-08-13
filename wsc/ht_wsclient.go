@@ -18,7 +18,8 @@ func (wsc *UWSClient) recvHT() {
 				_, message, err := wsc.conn.ReadMessage()
 				if err != nil {
 					log.Println("read:", err)
-					return
+					wsc.Reconnect()
+					// return
 				}
 				log.Printf("recv: %s", message)
 			}
@@ -51,7 +52,7 @@ func (wsc *UWSClient) sendHT() {
 					err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
 					if err != nil {
 						log.Println("write:", err)
-						return
+						//return
 					}
 				case <-wsc.interrupt:
 					log.Println("interrupt")
@@ -84,6 +85,8 @@ func NewHTWSClient() *UWSClient {
 	var htwsc *UWSClient
 	// var err error
 	htwsc, _ = NewInstanceWSC(NameHTWSC, "ws", "localhost:15701", "/ws/v1/ht/ETH_BTC")
+	// wss://engine2.kryptono.exchange/ws/v1/ht/GTO_ETH
+	// htwsc, _ = NewInstanceWSC(NameHTWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/ht/ETH_BTC")
 	//defer uws.Close()
 	return htwsc
 }
@@ -92,5 +95,5 @@ func (htwsc *UWSClient) StartHTWSClient() {
 	// Thread receive message.
 	go htwsc.recvHT()
 	// Thread send message.
-	go htwsc.sendHT()
+	//go htwsc.sendHT()
 }

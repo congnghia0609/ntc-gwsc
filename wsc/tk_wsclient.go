@@ -18,7 +18,8 @@ func (wsc *UWSClient) recvTK() {
 				_, message, err := wsc.conn.ReadMessage()
 				if err != nil {
 					log.Println("read:", err)
-					return
+					wsc.Reconnect()
+					// return
 				}
 				log.Printf("recv: %s", message)
 			}
@@ -49,7 +50,7 @@ func (wsc *UWSClient) sendTK() {
 					err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
 					if err != nil {
 						log.Println("write:", err)
-						return
+						//return
 					}
 				case <-wsc.interrupt:
 					log.Println("interrupt")
@@ -82,6 +83,8 @@ func NewTKWSClient() *UWSClient {
 	var tkwsc *UWSClient
 	// var err error
 	tkwsc, _ = NewInstanceWSC(NameTKWSC, "ws", "localhost:15801", "/ws/v1/tk")
+	// wss://engine2.kryptono.exchange/ws/v1/tk
+	// tkwsc, _ = NewInstanceWSC(NameTKWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/tk")
 	//defer uws.Close()
 	return tkwsc
 }
@@ -90,5 +93,5 @@ func (tkwsc *UWSClient) StartTKWSClient() {
 	// Thread receive message.
 	go tkwsc.recvTK()
 	// Thread send message.
-	go tkwsc.sendTK()
+	// go tkwsc.sendTK()
 }

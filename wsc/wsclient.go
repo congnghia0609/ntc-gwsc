@@ -1,7 +1,6 @@
 package wsc
 
 import (
-	"fmt"
 	"log"
 	"net/url"
 	"ntc-gwsc/util"
@@ -47,7 +46,7 @@ func NewInstanceWSC(name string, scheme string, host string, path string) (*UWSC
 			log.Printf("connecting to %s", url.String())
 			conn, _, err := websocket.DefaultDialer.Dial(url.String(), nil)
 
-			uws = &UWSClient{name: name, interrupt: interrupt, done: done, conn: conn}
+			uws = &UWSClient{name: name, interrupt: interrupt, done: done, url: url, conn: conn}
 
 			if err != nil {
 				log.Println("[xxxxxx] ERROR:", err)
@@ -72,24 +71,46 @@ func (uws *UWSClient) Close() {
 }
 
 // Reconnect is method auto-reconnect to websocket server.
-func Reconnect(name string, scheme string, host string, path string) *UWSClient {
+func (uws *UWSClient) Reconnect() {
 	// create ticket time for every 3 seconds
 	ticker := time.NewTicker(time.Duration(3) * time.Second)
 	var count = 1
 	for _ = range ticker.C {
-		var uws *UWSClient
-		var err error
-		uws, err = NewInstanceWSC(name, scheme, host, path)
+		conn, _, err := websocket.DefaultDialer.Dial(uws.url.String(), nil)
 
 		// Create new websocket
-		fmt.Printf("\nRetry Connect : %d times\n", count)
+		log.Printf("\nRetry Connect [%s]: %d times\n", uws.url.String(), count)
 		count = count + 1
-		if err != nil && uws != nil {
-			return uws
+		if err != nil {
+			log.Printf("Dial failed [%s]: %s\n\n", uws.url.String(), err.Error())
+		} else {
+			uws.conn = conn
+			break
 		}
 	}
-	return nil
 }
+
+// // Reconnect is method auto-reconnect to websocket server.
+// func Reconnect(name string, scheme string, host string, path string) *UWSClient {
+// 	// create ticket time for every 3 seconds
+// 	ticker := time.NewTicker(time.Duration(3) * time.Second)
+// 	var count = 1
+// 	for _ = range ticker.C {
+// 		var uws *UWSClient
+// 		var err error
+// 		uws, err = NewInstanceWSC(name, scheme, host, path)
+
+// 		// Create new websocket
+// 		fmt.Printf("\nRetry Connect : %d times\n", count)
+// 		count = count + 1
+// 		if err != nil {
+// 			log.Printf("Dial failed: %s\n\n", err.Error())
+// 		} else {
+// 			return uws
+// 		}
+// 	}
+// 	return nil
+// }
 
 // func main() {
 // 	var uws *UWSClient

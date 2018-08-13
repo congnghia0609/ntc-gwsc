@@ -5,5 +5,5 @@ const (
 	NameCSWSC = "candlesticksclient"
 	NameHTWSC = "historytradeclient"
 	NameTKWSC = "ticker24hclient"
-	NameRLWSC = "reloadsymbolclient"
+	NameRSWSC = "reloadsymbolclient"
 )
