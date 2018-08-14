@@ -92,5 +92,5 @@ func (tkwsc *UWSClient) StartRSWSClient() {
 	// Thread receive message.
 	go tkwsc.recvRS()
 	// Thread send message.
-	go tkwsc.sendRS()
+	// go tkwsc.sendRS()
 }

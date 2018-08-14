@@ -17,19 +17,19 @@ func main() {
 	log.Println("=================== Begin Main ===================")
 
 	// DPWSClient
-	// dpwsc = wsc.NewDPWSClient()
-	// defer dpwsc.Close()
-	// go dpwsc.StartDPWSClient()
+	dpwsc = wsc.NewDPWSClient()
+	defer dpwsc.Close()
+	go dpwsc.StartDPWSClient()
 
-	// // CSWSClient
-	// cswsc = wsc.NewCSWSClient()
-	// defer cswsc.Close()
-	// go cswsc.StartCSWSClient()
+	// CSWSClient
+	cswsc = wsc.NewCSWSClient()
+	defer cswsc.Close()
+	go cswsc.StartCSWSClient()
 
-	// // HTWSClient
-	// htwsc = wsc.NewHTWSClient()
-	// defer htwsc.Close()
-	// go htwsc.StartHTWSClient()
+	// HTWSClient
+	htwsc = wsc.NewHTWSClient()
+	defer htwsc.Close()
+	go htwsc.StartHTWSClient()
 
 	// TKWSClient
 	tkwsc = wsc.NewTKWSClient()
