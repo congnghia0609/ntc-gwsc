@@ -9,13 +9,14 @@ package wsc
 import (
 	"fmt"
 	"log"
+	"ntc-gwsc/conf"
 	"ntc-gwsc/util"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-func (wsc *UWSClient) recvRS() {
+func (wsc *UWSClient) recvDP() {
 	util.TCF{
 		Try: func() {
 			defer wsc.Close()
@@ -27,12 +28,11 @@ func (wsc *UWSClient) recvRS() {
 					wsc.Reconnect()
 					// return
 				}
-				//log.Printf("url: %s", wsc.url.String())
-				log.Printf("recv: %s", message)
+				log.Printf("recvDP: %s", message)
 			}
 		},
 		Catch: func(e util.Exception) {
-			log.Printf("wsc.recvRS Caught %v\n", e)
+			log.Printf("wsc.recvDP Caught %v\n", e)
 		},
 		Finally: func() {
 			//log.Println("Finally...")
@@ -40,20 +40,19 @@ func (wsc *UWSClient) recvRS() {
 	}.Do()
 }
 
-func (wsc *UWSClient) sendRS() {
+func (wsc *UWSClient) sendDP() {
 	util.TCF{
 		Try: func() {
 			ticker := time.NewTicker(time.Second)
 			defer ticker.Stop()
+
 			for {
 				select {
 				case t := <-ticker.C:
 					//err := uws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
-
 					msec := t.UnixNano() / 1000000
-
-					///// 1. Ticker24h Data.
-					data := `{"t":` + fmt.Sprint(msec) + `,"list_symbol":"BTC_USDT;ETH_USDT;KNOW_USDT;GTO_USDT"}`
+					///// 1. DepthPrice Data.
+					data := `{"a":[],"b":[["379.11400000", "0.03203000"]],"s":"ETH_BTC","t":"` + fmt.Sprint(msec) + `","e":"depthUpdate"}`
 					err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
 					if err != nil {
 						log.Println("write:", err)
@@ -78,7 +77,7 @@ func (wsc *UWSClient) sendRS() {
 			}
 		},
 		Catch: func(e util.Exception) {
-			log.Printf("wsc.sendRS Caught %v\n", e)
+			log.Printf("wsc.sendDP Caught %v\n", e)
 		},
 		Finally: func() {
 			//log.Println("Finally...")
@@ -86,17 +85,22 @@ func (wsc *UWSClient) sendRS() {
 	}.Do()
 }
 
-func NewRSWSClient() *UWSClient {
-	var rswsc *UWSClient
-	// var err error
-	rswsc, _ = NewInstanceWSC(NameRSWSC, "ws", "localhost:15801", "/ws/v1/tk")
-	//defer uws.Close()
-	return rswsc
+func NewDPWSClient() *UWSClient {
+	var dpwsc *UWSClient
+	c := conf.GetConfig()
+	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
+	log.Printf("################ DPWSClient[%s] start...", NameDPWSC)
+	// ws://e-internal-data1:15401/dataws/depth
+	dpwsc, _ = NewInstanceWSC(NameDPWSC, "ws", address, "/dataws/depth")
+	// dpwsc, _ = NewInstanceWSC(NameDPWSC, "ws", "localhost:15501", "/ws/v1/dp/ETH_BTC")
+	//wss://engine2.kryptono.exchange/ws/v1/dp/ETH_BTC
+	// dpwsc, _ = NewInstanceWSC(NameDPWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/dp/ETH_BTC")
+	return dpwsc
 }
 
-func (tkwsc *UWSClient) StartRSWSClient() {
+func (dpwsc *UWSClient) StartDPWSClient() {
 	// Thread receive message.
-	go tkwsc.recvRS()
+	go dpwsc.recvDP()
 	// Thread send message.
-	// go tkwsc.sendRS()
+	//go dpwsc.sendDP()
 }

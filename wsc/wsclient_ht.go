@@ -9,13 +9,14 @@ package wsc
 import (
 	"fmt"
 	"log"
+	"ntc-gwsc/conf"
 	"ntc-gwsc/util"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-func (wsc *UWSClient) recvCS() {
+func (wsc *UWSClient) recvHT() {
 	util.TCF{
 		Try: func() {
 			defer wsc.Close()
@@ -27,11 +28,11 @@ func (wsc *UWSClient) recvCS() {
 					wsc.Reconnect()
 					// return
 				}
-				log.Printf("recv: %s", message)
+				log.Printf("recvHT: %s", message)
 			}
 		},
 		Catch: func(e util.Exception) {
-			log.Printf("wsc.recvCS Caught %v\n", e)
+			log.Printf("wsc.recvHT Caught %v\n", e)
 		},
 		Finally: func() {
 			//log.Println("Finally...")
@@ -39,7 +40,7 @@ func (wsc *UWSClient) recvCS() {
 	}.Do()
 }
 
-func (wsc *UWSClient) sendCS() {
+func (wsc *UWSClient) sendHT() {
 	util.TCF{
 		Try: func() {
 			ticker := time.NewTicker(time.Second)
@@ -49,12 +50,9 @@ func (wsc *UWSClient) sendCS() {
 				select {
 				case t := <-ticker.C:
 					//err := uws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
-
 					msec := t.UnixNano() / 1000000
-
-					///// 1. Candlesticks Data.
-					data := `{"tt":"1h","s":"ETH_BTC","t":` + fmt.Sprint(msec) + `,"e":"kline","k":{"c":"0.00028022","t":1533715200000,"v":"905062.00000000","h":"0.00028252","l":"0.00027787","o":"0.00027919"}}`
-
+					///// 1. Historytrade Data.
+					data := `{"p":"0.05567000","q":"1.84100000","c":1533886283334,"s":"ETH_BTC","t":` + fmt.Sprint(msec) + `,"e":"history_trade","k":514102,"m":true}`
 					err := wsc.conn.WriteMessage(websocket.TextMessage, []byte(data))
 					if err != nil {
 						log.Println("write:", err)
@@ -79,7 +77,7 @@ func (wsc *UWSClient) sendCS() {
 			}
 		},
 		Catch: func(e util.Exception) {
-			log.Printf("wsc.sendCS Caught %v\n", e)
+			log.Printf("wsc.sendHT Caught %v\n", e)
 		},
 		Finally: func() {
 			//log.Println("Finally...")
@@ -87,19 +85,22 @@ func (wsc *UWSClient) sendCS() {
 	}.Do()
 }
 
-func NewCSWSClient() *UWSClient {
-	var cswsc *UWSClient
-	// var err error
-	cswsc, _ = NewInstanceWSC(NameCSWSC, "ws", "localhost:15601", "/ws/v1/cs/ETH_BTC@1m")
-	//wss://engine2.kryptono.exchange/ws/v1/cs/ETH_BTC@1m
-	// cswsc, _ = NewInstanceWSC(NameCSWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/cs/ETH_BTC@1m")
-	//defer uws.Close()
-	return cswsc
+func NewHTWSClient() *UWSClient {
+	var htwsc *UWSClient
+	c := conf.GetConfig()
+	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
+	log.Printf("################ HTWSClient[%s] start...", NameHTWSC)
+	// ws://e-internal-data1:15401/dataws/history
+	htwsc, _ = NewInstanceWSC(NameHTWSC, "ws", address, "/dataws/history")
+	// htwsc, _ = NewInstanceWSC(NameHTWSC, "ws", "localhost:15701", "/ws/v1/ht/ETH_BTC")
+	// wss://engine2.kryptono.exchange/ws/v1/ht/ETH_BTC
+	// htwsc, _ = NewInstanceWSC(NameHTWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/ht/ETH_BTC")
+	return htwsc
 }
 
-func (cswsc *UWSClient) StartCSWSClient() {
+func (htwsc *UWSClient) StartHTWSClient() {
 	// Thread receive message.
-	go cswsc.recvCS()
+	go htwsc.recvHT()
 	// Thread send message.
-	// go cswsc.sendCS()
+	//go htwsc.sendHT()
 }
