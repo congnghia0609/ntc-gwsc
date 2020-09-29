@@ -1,37 +1,36 @@
 
-market:
-  listpair: ETH_USDT;BTC_USDT
+depthpriceclient:
+  wsc:
+    scheme: wss
+    host: engine2.kryptono.exchange
+    path: /ws/v1/dp/BTC_USDT
 
-depthprice:
-  wss:
-    host: 0.0.0.0
-    port: 15501
+historytradeclient:
+  wsc:
+    scheme: wss
+    host: engine2.kryptono.exchange
+    path: /ws/v1/ht/BTC_USDT
 
-historytrade:
-  wss:
-    host: 0.0.0.0
-    port: 15701
+candlesticksclient:
+  wsc:
+    scheme: wss
+    host: engine2.kryptono.exchange
+    path: /ws/v1/cs/BTC_USDT@1m
 
-candlesticks:
-  wss:
-    host: 0.0.0.0
-    port: 15601
+ticker24hclient:
+  wsc:
+    scheme: wss
+    host: engine2.kryptono.exchange
+    path: /ws/v1/tk
 
-ticker24h:
-  wss:
-    host: 0.0.0.0
-    port: 15801
+cerberusclient:
+  wsc:
+    scheme: wss
+    host: engine2.kryptono.exchange
+    path: /ws/v1/cr/BTC_USDT
 
-cerberus:
-  wss:
-    host: 0.0.0.0
-    port: 18001
-
-
-webserver:
-  host: 0.0.0.0
-  port: 15901
-
-dataws:
-  host: 127.0.0.1
-  port: 15401
+reloadsymbolclient:
+  wsc:
+    scheme: ws
+    host: 127.0.0.1:15401
+    path: /dataws/reloadsymbol
