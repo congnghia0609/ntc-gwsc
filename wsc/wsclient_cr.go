@@ -8,11 +8,12 @@ package wsc
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"ntc-gwsc/conf"
 	"ntc-gwsc/util"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 func (wsc *NWSClient) recvCR() {
@@ -88,9 +89,11 @@ func (wsc *NWSClient) sendCR() {
 func NewCRWSClient() *NWSClient {
 	var crwsc *NWSClient
 	c := conf.GetConfig()
-	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
+	scheme := c.GetString(NameCRWSC + ".wsc.scheme")
+	address := c.GetString(NameCRWSC + ".wsc.host")
+	path := c.GetString(NameCRWSC + ".wsc.path")
 	log.Printf("################ CRWSClient[%s] start...", NameCRWSC)
-	crwsc, _ = NewInstanceWSC(NameCRWSC, "ws", address, "/dataws/cerberus")
+	crwsc, _ = NewInstanceWSC(NameCRWSC, scheme, address, path)
 	// crwsc, _ = NewInstanceWSC(NameCRWSC, "ws", "localhost:15501", "/ws/v1/cr/ETH_BTC")
 	// crwsc, _ = NewInstanceWSC(NameCRWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/cr/ETH_BTC")
 	return crwsc
@@ -101,5 +104,5 @@ func (wsc *NWSClient) StartCRWSClient() {
 	// Thread receive message.
 	go wsc.recvCR()
 	// Thread send message.
-	//go crwsc.sendCR()
+	//go wsc.sendCR()
 }

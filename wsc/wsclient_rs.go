@@ -101,9 +101,11 @@ func (wsc *NWSClient) sendRS() {
 func NewRSWSClient() *NWSClient {
 	var rswsc *NWSClient
 	c := conf.GetConfig()
-	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
+	scheme := c.GetString(NameCRWSC + ".wsc.scheme")
+	address := c.GetString(NameCRWSC + ".wsc.host")
+	path := c.GetString(NameCRWSC + ".wsc.path")
 	log.Printf("################ RSWSClient[%s] start...", NameRSWSC)
-	rswsc, _ = NewInstanceWSC(NameRSWSC, "ws", address, "/dataws/reloadsymbol")
+	rswsc, _ = NewInstanceWSC(NameRSWSC, scheme, address, path)
 	return rswsc
 }
 
@@ -112,5 +114,5 @@ func (wsc *NWSClient) StartRSWSClient() {
 	// Thread receive message.
 	go wsc.recvRS()
 	// Thread send message.
-	// go tkwsc.sendRS()
+	// go wsc.sendRS()
 }

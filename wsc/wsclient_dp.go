@@ -89,9 +89,11 @@ func (wsc *NWSClient) sendDP() {
 func NewDPWSClient() *NWSClient {
 	var dpwsc *NWSClient
 	c := conf.GetConfig()
-	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
+	scheme := c.GetString(NameDPWSC + ".wsc.scheme")
+	address := c.GetString(NameDPWSC + ".wsc.host")
+	path := c.GetString(NameDPWSC + ".wsc.path")
 	log.Printf("################ DPWSClient[%s] start...", NameDPWSC)
-	dpwsc, _ = NewInstanceWSC(NameDPWSC, "ws", address, "/dataws/depth")
+	dpwsc, _ = NewInstanceWSC(NameDPWSC, scheme, address, path)
 	// dpwsc, _ = NewInstanceWSC(NameDPWSC, "ws", "localhost:15501", "/ws/v1/dp/ETH_BTC")
 	// dpwsc, _ = NewInstanceWSC(NameDPWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/dp/ETH_BTC")
 	return dpwsc
@@ -102,5 +104,5 @@ func (wsc *NWSClient) StartDPWSClient() {
 	// Thread receive message.
 	go wsc.recvDP()
 	// Thread send message.
-	//go dpwsc.sendDP()
+	//go wsc.sendDP()
 }

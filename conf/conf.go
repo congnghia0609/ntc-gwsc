@@ -7,7 +7,10 @@
 package conf
 
 import (
+	"flag"
+	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/viper"
@@ -16,16 +19,28 @@ import (
 var config *viper.Viper
 var env string
 
-// Init is an exported method that takes the environment starts the viper (external lib) and
+// Init wdir
+func Init(wdir string) {
+	//// init Configuration
+	environment := flag.String("e", "development", "run project with mode [-e development | test | production]")
+	flag.Usage = func() {
+		fmt.Println("Usage: ./[appname] -e development | test | production")
+		os.Exit(1)
+	}
+	flag.Parse()
+	log.Printf("============== NConf environment: %s", *environment)
+	InitEnv(wdir, *environment)
+}
+
+// InitEnv is an exported method that takes the environment starts the viper (external lib) and
 // returns the configuration struct.
-func Init(environment string) {
-	log.Printf("============== Config Init Environment: %s ==============", environment)
+func InitEnv(wdir string, environment string) {
+	log.Printf("============== NConfig Init Environment: %s ==============", environment)
 	var err error
 	v := viper.New()
 	v.SetConfigType("yaml")
 	v.SetConfigName(environment)
-	v.AddConfigPath("../conf/")
-	v.AddConfigPath("conf/")
+	v.AddConfigPath(filepath.Join(wdir, "conf"))
 	err = v.ReadInConfig()
 	if err != nil {
 		log.Fatal("error on parsing configuration file")
@@ -34,17 +49,17 @@ func Init(environment string) {
 	env = environment
 }
 
-func RelativePath(basedir string, path *string) {
-	p := *path
-	if p != "" && p[0] != '/' {
-		*path = filepath.Join(basedir, p)
-	}
+// JoinPath join directory
+func JoinPath(basedir string, path string) string {
+	return filepath.Join(basedir, path)
 }
 
+// GetConfig get config
 func GetConfig() *viper.Viper {
 	return config
 }
 
+// GetEnv get env
 func GetEnv() string {
 	return env
 }

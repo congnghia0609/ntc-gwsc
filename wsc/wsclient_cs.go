@@ -89,9 +89,11 @@ func (wsc *NWSClient) sendCS() {
 func NewCSWSClient() *NWSClient {
 	var cswsc *NWSClient
 	c := conf.GetConfig()
-	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
+	scheme := c.GetString(NameCSWSC + ".wsc.scheme")
+	address := c.GetString(NameCSWSC + ".wsc.host")
+	path := c.GetString(NameCSWSC + ".wsc.path")
 	log.Printf("################ CSWSClient[%s] start...", NameCSWSC)
-	cswsc, _ = NewInstanceWSC(NameCSWSC, "ws", address, "/dataws/stock")
+	cswsc, _ = NewInstanceWSC(NameCSWSC, scheme, address, path)
 	// cswsc, _ = NewInstanceWSC(NameCSWSC, "ws", "localhost:15601", "/ws/v1/cs/ETH_BTC@1h")
 	// cswsc, _ = NewInstanceWSC(NameCSWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/cs/ETH_BTC@1m")
 	return cswsc
@@ -102,5 +104,5 @@ func (wsc *NWSClient) StartCSWSClient() {
 	// Thread receive message.
 	go wsc.recvCS()
 	// Thread send message.
-	//go cswsc.sendCS()
+	//go wsc.sendCS()
 }

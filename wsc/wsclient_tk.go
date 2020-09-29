@@ -87,12 +87,14 @@ func (wsc *NWSClient) sendTK() {
 // NewTKWSClient new instance TKWSClient of NWSClient
 func NewTKWSClient() *NWSClient {
 	var tkwsc *NWSClient
-	// c := conf.GetConfig()
-	// address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
+	c := conf.GetConfig()
+	scheme := c.GetString(NameTKWSC + ".wsc.scheme")
+	address := c.GetString(NameTKWSC + ".wsc.host")
+	path := c.GetString(NameTKWSC + ".wsc.path")
 	log.Printf("################ TKWSClient[%s] start...", NameTKWSC)
-	// tkwsc, _ = NewInstanceWSC(NameTKWSC, "ws", address, "/dataws/ticker24h")
+	tkwsc, _ = NewInstanceWSC(NameTKWSC, scheme, address, path)
 	// tkwsc, _ = NewInstanceWSC(NameTKWSC, "ws", "localhost:15801", "/ws/v1/tk")
-	tkwsc, _ = NewInstanceWSC(NameTKWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/tk")
+	// tkwsc, _ = NewInstanceWSC(NameTKWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/tk")
 	return tkwsc
 }
 
@@ -101,5 +103,5 @@ func (wsc *NWSClient) StartTKWSClient() {
 	// Thread receive message.
 	go wsc.recvTK()
 	// Thread send message.
-	//go tkwsc.sendTK()
+	//go wsc.sendTK()
 }

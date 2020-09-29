@@ -89,9 +89,11 @@ func (wsc *NWSClient) sendHT() {
 func NewHTWSClient() *NWSClient {
 	var htwsc *NWSClient
 	c := conf.GetConfig()
-	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
+	scheme := c.GetString(NameHTWSC + ".wsc.scheme")
+	address := c.GetString(NameHTWSC + ".wsc.host")
+	path := c.GetString(NameHTWSC + ".wsc.path")
 	log.Printf("################ HTWSClient[%s] start...", NameHTWSC)
-	htwsc, _ = NewInstanceWSC(NameHTWSC, "ws", address, "/dataws/history")
+	htwsc, _ = NewInstanceWSC(NameHTWSC, scheme, address, path)
 	// htwsc, _ = NewInstanceWSC(NameHTWSC, "ws", "localhost:15701", "/ws/v1/ht/ETH_BTC")
 	// htwsc, _ = NewInstanceWSC(NameHTWSC, "wss", "engine2.kryptono.exchange", "/ws/v1/ht/ETH_BTC")
 	return htwsc
@@ -102,5 +104,5 @@ func (wsc *NWSClient) StartHTWSClient() {
 	// Thread receive message.
 	go wsc.recvHT()
 	// Thread send message.
-	//go htwsc.sendHT()
+	//go wsc.sendHT()
 }

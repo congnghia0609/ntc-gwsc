@@ -7,20 +7,36 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"ntc-gwsc/conf"
 	"ntc-gwsc/wsc"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime"
 )
+
+// InitConf init conf
+func InitConf() {
+	_, b, _, _ := runtime.Caller(0)
+	wdir := filepath.Dir(b)
+	fmt.Println("wdir:", wdir)
+	conf.Init(wdir)
+}
 
 var dpwsc *wsc.NWSClient
 var cswsc *wsc.NWSClient
 var htwsc *wsc.NWSClient
 var tkwsc *wsc.NWSClient
+var crwsc *wsc.NWSClient
 var rswsc *wsc.NWSClient
 
 func main() {
 	log.Println("=================== Begin Main ===================")
+
+	// init conf
+	InitConf()
 
 	// DPWSClient
 	dpwsc = wsc.NewDPWSClient()
@@ -41,6 +57,11 @@ func main() {
 	tkwsc = wsc.NewTKWSClient()
 	defer tkwsc.Close()
 	go tkwsc.StartTKWSClient()
+
+	// CRWSClient
+	crwsc = wsc.NewCRWSClient()
+	defer crwsc.Close()
+	go crwsc.StartCRWSClient()
 
 	// // ReloadSymbolWSSClient
 	// rswsc = wsc.NewRSWSClient()
