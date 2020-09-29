@@ -17,7 +17,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (wsc *UWSClient) recvRS() {
+func (wsc *NWSClient) recvRS() {
 	util.TCF{
 		Try: func() {
 			defer wsc.Close()
@@ -53,7 +53,7 @@ func (wsc *UWSClient) recvRS() {
 	}.Do()
 }
 
-func (wsc *UWSClient) sendRS() {
+func (wsc *NWSClient) sendRS() {
 	util.TCF{
 		Try: func() {
 			ticker := time.NewTicker(time.Second)
@@ -61,7 +61,7 @@ func (wsc *UWSClient) sendRS() {
 			for {
 				select {
 				case t := <-ticker.C:
-					//err := uws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
+					//err := nws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
 					msec := t.UnixNano() / 1000000
 					///// 1. Ticker24h Data.
 					data := `{"t":` + fmt.Sprint(msec) + `,"list_symbol":"BTC_USDT;ETH_USDT;KNOW_USDT;GTO_USDT"}`
@@ -97,8 +97,9 @@ func (wsc *UWSClient) sendRS() {
 	}.Do()
 }
 
-func NewRSWSClient() *UWSClient {
-	var rswsc *UWSClient
+// NewRSWSClient new instance RSWSClient of NWSClient
+func NewRSWSClient() *NWSClient {
+	var rswsc *NWSClient
 	c := conf.GetConfig()
 	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
 	log.Printf("################ RSWSClient[%s] start...", NameRSWSC)
@@ -106,9 +107,10 @@ func NewRSWSClient() *UWSClient {
 	return rswsc
 }
 
-func (tkwsc *UWSClient) StartRSWSClient() {
+// StartRSWSClient start RSWSClient
+func (wsc *NWSClient) StartRSWSClient() {
 	// Thread receive message.
-	go tkwsc.recvRS()
+	go wsc.recvRS()
 	// Thread send message.
 	// go tkwsc.sendRS()
 }

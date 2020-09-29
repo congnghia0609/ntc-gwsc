@@ -13,11 +13,11 @@ import (
 	"os/signal"
 )
 
-var dpwsc *wsc.UWSClient
-var cswsc *wsc.UWSClient
-var htwsc *wsc.UWSClient
-var tkwsc *wsc.UWSClient
-var rswsc *wsc.UWSClient
+var dpwsc *wsc.NWSClient
+var cswsc *wsc.NWSClient
+var htwsc *wsc.NWSClient
+var tkwsc *wsc.NWSClient
+var rswsc *wsc.NWSClient
 
 func main() {
 	log.Println("=================== Begin Main ===================")

@@ -16,7 +16,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (wsc *UWSClient) recvCS() {
+func (wsc *NWSClient) recvCS() {
 	util.TCF{
 		Try: func() {
 			defer wsc.Close()
@@ -40,7 +40,7 @@ func (wsc *UWSClient) recvCS() {
 	}.Do()
 }
 
-func (wsc *UWSClient) sendCS() {
+func (wsc *NWSClient) sendCS() {
 	util.TCF{
 		Try: func() {
 			ticker := time.NewTicker(time.Second)
@@ -49,7 +49,7 @@ func (wsc *UWSClient) sendCS() {
 			for {
 				select {
 				case t := <-ticker.C:
-					//err := uws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
+					//err := nws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
 					msec := t.UnixNano() / 1000000
 					///// 1. Candlesticks Data.
 					data := `{"tt":"1h","s":"ETH_BTC","t":` + fmt.Sprint(msec) + `,"e":"kline","k":{"c":"0.00028022","t":1533715200000,"v":"905062.00000000","h":"0.00028252","l":"0.00027787","o":"0.00027919"}}`
@@ -85,8 +85,9 @@ func (wsc *UWSClient) sendCS() {
 	}.Do()
 }
 
-func NewCSWSClient() *UWSClient {
-	var cswsc *UWSClient
+// NewCSWSClient new instance CSWSClient of NWSClient
+func NewCSWSClient() *NWSClient {
+	var cswsc *NWSClient
 	c := conf.GetConfig()
 	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
 	log.Printf("################ CSWSClient[%s] start...", NameCSWSC)
@@ -96,9 +97,10 @@ func NewCSWSClient() *UWSClient {
 	return cswsc
 }
 
-func (cswsc *UWSClient) StartCSWSClient() {
+// StartCSWSClient start
+func (wsc *NWSClient) StartCSWSClient() {
 	// Thread receive message.
-	go cswsc.recvCS()
+	go wsc.recvCS()
 	// Thread send message.
 	//go cswsc.sendCS()
 }

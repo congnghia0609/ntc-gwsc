@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-func (wsc *UWSClient) recvCR() {
+func (wsc *NWSClient) recvCR() {
 	util.TCF{
 		Try: func() {
 			defer wsc.Close()
@@ -39,7 +39,7 @@ func (wsc *UWSClient) recvCR() {
 	}.Do()
 }
 
-func (wsc *UWSClient) sendCR() {
+func (wsc *NWSClient) sendCR() {
 	util.TCF{
 		Try: func() {
 			ticker := time.NewTicker(time.Second)
@@ -48,7 +48,7 @@ func (wsc *UWSClient) sendCR() {
 			for {
 				select {
 				case t := <-ticker.C:
-					//err := uws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
+					//err := nws.conn.WriteMessage(websocket.TextMessage, []byte(t.String()))
 					msec := t.UnixNano() / 1000000
 					///// 1. DepthPrice Data.
 					data := `{"et":"dp","s":"ETH_BTC",{"a":[],"b":[["379.11400000", "0.03203000"]],"s":"ETH_BTC","t":"` + fmt.Sprint(msec) + `","e":"depthUpdate"}}`
@@ -84,8 +84,9 @@ func (wsc *UWSClient) sendCR() {
 	}.Do()
 }
 
-func NewCRWSClient() *UWSClient {
-	var crwsc *UWSClient
+// NewCRWSClient new instance CRWSClient of NWSClient
+func NewCRWSClient() *NWSClient {
+	var crwsc *NWSClient
 	c := conf.GetConfig()
 	address := c.GetString("dataws.host") + ":" + c.GetString("dataws.port")
 	log.Printf("################ CRWSClient[%s] start...", NameCRWSC)
@@ -95,9 +96,10 @@ func NewCRWSClient() *UWSClient {
 	return crwsc
 }
 
-func (crwsc *UWSClient) StartCRWSClient() {
+// StartCRWSClient start
+func (wsc *NWSClient) StartCRWSClient() {
 	// Thread receive message.
-	go crwsc.recvCR()
+	go wsc.recvCR()
 	// Thread send message.
 	//go crwsc.sendCR()
 }
