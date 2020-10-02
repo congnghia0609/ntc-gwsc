@@ -54,17 +54,17 @@ candlesticksclient:
     host: 0.0.0.0:15601
     path: /ws/v1/cs/BTC_USDT@1m
 
-# ticker24hclient:
-#   wsc:
-#     scheme: ws
-#     host: 0.0.0.0:15801
-#     path: /ws/v1/tk
-
 ticker24hclient:
   wsc:
     scheme: ws
-    host: 0.0.0.0:8000
-    path: /
+    host: 0.0.0.0:15801
+    path: /ws/v1/tk
+
+# ticker24hclient:
+#   wsc:
+#     scheme: ws
+#     host: 0.0.0.0:8000
+#     path: /
 
 cerberusclient:
   wsc:
