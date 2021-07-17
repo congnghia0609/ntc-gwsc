@@ -8,9 +8,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/congnghia0609/ntc-gwsc/conf"
+	"github.com/congnghia0609/ntc-gwsc/wsc"
 	"log"
-	"ntc-gwsc/conf"
-	"ntc-gwsc/wsc"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -30,7 +30,7 @@ var cswsc *wsc.NWSClient
 var htwsc *wsc.NWSClient
 var tkwsc *wsc.NWSClient
 var crwsc *wsc.NWSClient
-var rswsc *wsc.NWSClient
+//var rswsc *wsc.NWSClient
 
 func main() {
 	log.Println("=================== Begin Main ===================")

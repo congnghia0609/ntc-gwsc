@@ -8,9 +8,9 @@ package wsc
 
 import (
 	"fmt"
+	"github.com/congnghia0609/ntc-gwsc/conf"
+	"github.com/congnghia0609/ntc-gwsc/util"
 	"log"
-	"ntc-gwsc/conf"
-	"ntc-gwsc/util"
 	"time"
 
 	"github.com/gorilla/websocket"
